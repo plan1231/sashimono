@@ -1,0 +1,9 @@
+name: Sashimono
+version: '${project.version}'
+main: me.walldrill.sashimono.Sashimono
+api-version: 1.19
+commands:
+  equipbanner:
+    description: Set yourself on fire.
+    aliases: [combust_me, combustMe]
+    usage: Syntax error! Perhaps you meant /<command> PlayerName?
