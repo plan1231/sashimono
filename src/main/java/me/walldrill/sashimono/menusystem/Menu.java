@@ -3,6 +3,7 @@ package me.walldrill.sashimono.menusystem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +33,7 @@ public abstract class Menu implements InventoryHolder {
 
     //let each menu decide how the items in the menu will be handled when clicked
     public abstract void handleMenu(InventoryClickEvent e);
+    public void handleMenuClose(InventoryCloseEvent e){};
 
     //let each menu decide what items are to be placed in the inventory menu
     public abstract void setMenuItems();

@@ -12,7 +12,9 @@ public class PlayerBannerManager {
     public void setPlayerBanner(Player p, ItemStack banner) {
         playerBanners.put(p.getUniqueId(), banner);
     }
-
+    public void removePlayerBanner(Player p){
+        playerBanners.remove(p.getUniqueId());
+    }
     public boolean playerHasCustomBanner(Player p){
         return playerBanners.containsKey(p.getUniqueId());
     }

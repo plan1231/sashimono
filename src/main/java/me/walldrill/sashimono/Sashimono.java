@@ -20,7 +20,6 @@ public final class Sashimono extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        PdcReader.plugin = this;
         playerBannerManager = new PlayerBannerManager();
         getCommand("sashimono").setExecutor(new SashimonoCommand());
         getServer().getPluginManager().registerEvents(new MenuListener(), this);

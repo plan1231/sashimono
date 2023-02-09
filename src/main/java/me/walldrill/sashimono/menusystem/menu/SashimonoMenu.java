@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
@@ -63,15 +64,27 @@ public class SashimonoMenu extends Menu {
     }
     @Override
     public void handleMenu(InventoryClickEvent e) {
-        System.out.println("inside inventoryclick handlemenu");
-        System.out.println(e.getAction());
-        System.out.println("isInteractingBlockedSlot(e) " + isInteractingBlockedSlot(e));
-        System.out.println("isMovingInWrong " + isMovingInWrong(e));
-        System.out.println("isPlacingDownWrong " + isPlacingDownWrong(e));
         if(isInteractingBlockedSlot(e) || isMovingInWrong(e) || isPlacingDownWrong(e)
                 ){
             e.setCancelled(true);
         }
+    }
+
+    /*
+    WARNING: The way this menu is implemented means that players may lose a banner if they put one into the menu slot
+    and then exiting the game without closing the inventory first.
+
+    Consider moving the saving logic into handleMenu, or schedule it to run a few ticks later.
+     */
+    @Override
+    public void handleMenuClose(InventoryCloseEvent e){
+        ItemStack itemStack = inventory.getItem(0);
+        if(itemStack != null) {
+            Sashimono.getPlayerBannerManager().setPlayerBanner(playerMenuUtility.getOwner(), itemStack);
+        }
+        else
+            Sashimono.getPlayerBannerManager().removePlayerBanner(playerMenuUtility.getOwner());
+
     }
 
     @Override

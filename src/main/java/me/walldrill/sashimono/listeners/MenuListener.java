@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 
@@ -22,6 +23,15 @@ public class MenuListener implements Listener {
             Menu menu = (Menu) holder;
             //Call the handleMenu object which takes the event and processes it
             menu.handleMenu(e);
+        }
+    }
+
+    @EventHandler
+    public void onMenuClose(InventoryCloseEvent e){
+        InventoryHolder holder = e.getInventory().getHolder();
+        if (holder instanceof Menu) {
+            Menu menu = (Menu) holder;
+            menu.handleMenuClose(e);
         }
     }
 }
