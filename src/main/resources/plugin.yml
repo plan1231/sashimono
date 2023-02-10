@@ -2,6 +2,7 @@ name: Sashimono
 version: '${project.version}'
 main: me.walldrill.sashimono.Sashimono
 api-version: 1.19
+depend: [ProtocolLib]
 commands:
   sashimono:
     description: Show your allegiance by displaying a cosmetic banner. Normal helmet armor still applies under the hood

@@ -1,10 +1,18 @@
 package me.walldrill.sashimono.menusystem.menu;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.Pair;
+import me.walldrill.sashimono.PacketUtil;
 import me.walldrill.sashimono.Sashimono;
 import me.walldrill.sashimono.menusystem.Menu;
 import me.walldrill.sashimono.menusystem.PlayerMenuUtility;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -13,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 public class SashimonoMenu extends Menu {
@@ -77,14 +86,30 @@ public class SashimonoMenu extends Menu {
     Consider moving the saving logic into handleMenu, or schedule it to run a few ticks later.
      */
     @Override
-    public void handleMenuClose(InventoryCloseEvent e){
+    public void handleMenuClose(InventoryCloseEvent e) {
         ItemStack itemStack = inventory.getItem(0);
-        if(itemStack != null) {
-            Sashimono.getPlayerBannerManager().setPlayerBanner(playerMenuUtility.getOwner(), itemStack);
-        }
-        else
-            Sashimono.getPlayerBannerManager().removePlayerBanner(playerMenuUtility.getOwner());
+        Player p = playerMenuUtility.getOwner();
 
+        if(itemStack != null) {
+            Sashimono.getPlayerBannerManager().setPlayerBanner(p, itemStack);
+
+        }
+        else {
+            Sashimono.getPlayerBannerManager().removePlayerBanner(playerMenuUtility.getOwner());
+            itemStack = new ItemStack(Material.AIR, 1);
+        }
+
+
+        PacketContainer packet = PacketUtil.createHelmetPacket(p, itemStack);
+        for(Player otherP : Bukkit.getOnlinePlayers()){
+            if(otherP == p) continue;
+            try{
+                ProtocolLibrary.getProtocolManager().sendServerPacket(otherP, packet);
+            }
+            catch (InvocationTargetException ite){
+                System.out.println("Failed to send packet");
+            }
+        }
     }
 
     @Override
@@ -92,15 +117,13 @@ public class SashimonoMenu extends Menu {
 
         ItemStack yes = new ItemStack(Material.EMERALD, 1);
         ItemMeta yes_meta = yes.getItemMeta();
-        yes_meta.setDisplayName(ChatColor.YELLOW + "Drop a banner into the slot on the left");
+        yes_meta.setDisplayName(ChatColor.YELLOW + "Drop a banner");
         ArrayList<String> yes_lore = new ArrayList<>();
         yes_lore.add(ChatColor.AQUA + "Cosmetic change only.");
-        yes_lore.add(ChatColor.AQUA + "You'll appear as if you've equipped the banner");
-        yes_lore.add(ChatColor.AQUA + "but damage calculations still use your actual helmet");
         yes_meta.setLore(yes_lore);
         yes.setItemMeta(yes_meta);
 
-        inventory.setItem(1, yes);
+        inventory.setItem(5, yes);
 
         setFillerGlass();
 
