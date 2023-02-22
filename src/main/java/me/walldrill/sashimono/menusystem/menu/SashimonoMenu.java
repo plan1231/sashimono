@@ -1,10 +1,7 @@
 package me.walldrill.sashimono.menusystem.menu;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.Pair;
 import me.walldrill.sashimono.PacketUtil;
 import me.walldrill.sashimono.Sashimono;
 import me.walldrill.sashimono.menusystem.Menu;
@@ -16,10 +13,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffectType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -81,7 +78,7 @@ public class SashimonoMenu extends Menu {
 
     /*
     WARNING: The way this menu is implemented means that players may lose a banner if they put one into the menu slot
-    and then exiting the game without closing the inventory first.
+    and then exit the game without closing the inventory first.
 
     Consider moving the saving logic into handleMenu, or schedule it to run a few ticks later.
      */
@@ -91,12 +88,18 @@ public class SashimonoMenu extends Menu {
         Player p = playerMenuUtility.getOwner();
 
         if(itemStack != null) {
-            Sashimono.getPlayerBannerManager().setPlayerBanner(p, itemStack);
+            Sashimono.getStateManager().setPlayerBanner(p, itemStack);
 
         }
         else {
-            Sashimono.getPlayerBannerManager().removePlayerBanner(playerMenuUtility.getOwner());
+            Sashimono.getStateManager().removePlayerBanner(playerMenuUtility.getOwner());
             itemStack = new ItemStack(Material.AIR, 1);
+            for(Player p2 : Bukkit.getOnlinePlayers()){
+                if(p == p2) continue;
+                if(p.getLocation().distanceSquared(p2.getLocation()) <= 36 && Sashimono.getStateManager().hasPotionEffect(p2, PotionEffectType.SPEED)){
+                    p2.removePotionEffect(PotionEffectType.SPEED);
+                }
+            }
         }
 
 
@@ -128,8 +131,8 @@ public class SashimonoMenu extends Menu {
         setFillerGlass();
 
         // may want to reduce verbosity
-        if(Sashimono.getPlayerBannerManager().playerHasCustomBanner(playerMenuUtility.getOwner()))
-            inventory.setItem(0, Sashimono.getPlayerBannerManager().getPlayerBanner(playerMenuUtility.getOwner()));
+        if(Sashimono.getStateManager().playerHasCustomBanner(playerMenuUtility.getOwner()))
+            inventory.setItem(0, Sashimono.getStateManager().getPlayerBanner(playerMenuUtility.getOwner()));
         else
             inventory.clear(0);
     }

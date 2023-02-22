@@ -18,7 +18,6 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.*;
-import java.nio.Buffer;
 import java.util.*;
 
 import static com.comphenix.protocol.PacketType.Play.Server.ENTITY_EQUIPMENT;
@@ -26,15 +25,14 @@ import static com.comphenix.protocol.PacketType.Play.Server.ENTITY_EQUIPMENT;
 public final class Sashimono extends JavaPlugin {
 
     private static final HashMap<Player, PlayerMenuUtility> playerMenuUtilityMap = new HashMap<>();
-    private static PlayerBannerManager playerBannerManager;
-
-    public static PlayerBannerManager getPlayerBannerManager(){
-        return playerBannerManager;
+    private static StateManager stateManager;
+    public static StateManager getStateManager(){
+        return stateManager;
     }
 
     @Override
     public void onEnable() {
-        playerBannerManager = new PlayerBannerManager();
+        stateManager = new StateManager();
         List<List<String>> records = new ArrayList<>();
         if(!getDataFolder().exists())
             getDataFolder().mkdir();
@@ -63,7 +61,7 @@ public final class Sashimono extends JavaPlugin {
                 ItemStack newItem = (ItemStack) is.readObject();
                 data.add(new Pair<>(UUID.fromString(row.get(0)),newItem ));
             }
-            playerBannerManager.ImportData(data);
+            stateManager.ImportData(data);
         } catch (IOException ignored) {
             System.out.println("IO Error. Data ignored");
 
@@ -89,16 +87,17 @@ public final class Sashimono extends JavaPlugin {
                         for (Player p : getServer().getOnlinePlayers()) {
                             if (p.getEntityId() == entityId)  player = p;
                         }
-                        if(player == null || !playerBannerManager.playerHasCustomBanner(player)) return;
+                        if(player == null || !stateManager.playerHasCustomBanner(player)) return;
 
                         List<Pair<EnumWrappers.ItemSlot, ItemStack>> lst = packet.getSlotStackPairLists().read(0);
                         for(Pair<EnumWrappers.ItemSlot, ItemStack> pair : lst){
                             if(pair.getFirst() != EnumWrappers.ItemSlot.HEAD) continue;
-                            pair.setSecond(playerBannerManager.getPlayerBanner(player));
+                            pair.setSecond(stateManager.getPlayerBanner(player));
                         }
                         packet.getSlotStackPairLists().write(0, lst);
                     }
                 });
+        new BuffApplier(this).runTaskTimer(this, 20L, 10L );
     }
 
     @Override
@@ -108,7 +107,7 @@ public final class Sashimono extends JavaPlugin {
 
         // by default, will overwrite if exists
         try (PrintWriter pr = new PrintWriter(new FileWriter(getDataFolder().getAbsolutePath() + "/banners.csv"))) {
-            ArrayList<Pair<UUID, ItemStack>> data = playerBannerManager.getAllBanners();
+            ArrayList<Pair<UUID, ItemStack>> data = stateManager.getAllBanners();
 
             for(Pair<UUID, ItemStack> row : data){
                 //decode string into raw bytes
