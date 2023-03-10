@@ -9,6 +9,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.Pair;
 import me.walldrill.sashimono.commands.SashimonoCommand;
 import me.walldrill.sashimono.listeners.MenuListener;
+import me.walldrill.sashimono.listeners.PlayerClickListener;
 import me.walldrill.sashimono.listeners.PlayerEventsListener;
 import me.walldrill.sashimono.menusystem.PlayerMenuUtility;
 import org.bukkit.entity.Player;
@@ -74,6 +75,7 @@ public final class Sashimono extends JavaPlugin {
         getCommand("sashimono").setExecutor(new SashimonoCommand());
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerEventsListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerClickListener(), this);
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, ENTITY_EQUIPMENT) {
                     @Override
                     public void onPacketSending(PacketEvent event) {
@@ -97,7 +99,7 @@ public final class Sashimono extends JavaPlugin {
                         packet.getSlotStackPairLists().write(0, lst);
                     }
                 });
-        new BuffApplier(this).runTaskTimer(this, 20L, 10L );
+        //new BuffApplier(this).runTaskTimer(this, 20L, 10L );
     }
 
     @Override
